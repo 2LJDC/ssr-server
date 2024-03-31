@@ -63,7 +63,7 @@ async fn status() -> String {
 thread_local! {
     static SSR: RefCell<Ssr<'static, 'static>> = RefCell::new(
             Ssr::from(
-                read_to_string("./app/www/index.html").unwrap(),
+                read_to_string("/app/www/index.html").unwrap(),
                 "SSR"
                 ).unwrap()
             )
