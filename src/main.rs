@@ -8,6 +8,11 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 //use actix_web::HttpRequest;
 use actix_web::Error;
 
+use actix_web::http::StatusCode;
+use std::cell::RefCell;
+use std::fs::read_to_string;
+use ssr_rs::Ssr;
+
 
 //config
 #[derive(serde::Deserialize)]
@@ -30,7 +35,6 @@ pub struct DatabaseSettings {
 
 impl DatabaseSettings {
 	pub fn connection_string(&self) -> String {
-		//format!("postgres://{}:{}@{}:{}/{}",self.username, self.password, self.host, self.port, self.database_name)
 		format!("postgres://{}:{}@{}:{}",self.username, self.password, self.host, self.port)
 	}
 }
@@ -55,8 +59,27 @@ async fn status() -> String {
     "Server is up and running.".to_string()
 }
 
-// ------API------
+//-- ssr --
+thread_local! {
+    static SSR: RefCell<Ssr<'static, 'static>> = RefCell::new(
+            Ssr::from(
+                read_to_string("./client/dist/ssr/index.js").unwrap(),
+                "SSR"
+                ).unwrap()
+            )
+}
 
+async fn ssr_index() -> HttpResponse {
+    let result = SSR.with(|ssr| ssr.borrow_mut().render_to_string(None).unwrap());
+
+    HttpResponse::build(StatusCode::OK)
+        .content_type("text/html; charset=utf-8")
+        .body(result)
+}
+
+
+
+// ------API------
 
 // UPDATE
 async fn update(req_body: String) -> impl Responder {
@@ -69,8 +92,6 @@ async fn update(req_body: String) -> impl Responder {
     HttpResponse::Ok()
 }
 
-
-
 // submit
 async fn submit(req_body: String) -> impl Responder {
 
@@ -80,9 +101,7 @@ async fn submit(req_body: String) -> impl Responder {
 		Err(_) => return HttpResponse::BadRequest(),
 	};
 
-
 	let url = configuration.database.connection_string();
-	//let url = format!("postgres://postgres:{}@{}:{}", "deeznuts", "85.215.154.152", "5432");
 	
 	match add_customer(req_body, url).await {
 		Ok(()) => HttpResponse::Ok(),
@@ -92,16 +111,9 @@ async fn submit(req_body: String) -> impl Responder {
 	HttpResponse::Ok()
 }
 
-
-
 // DATABASE postgres
 async fn add_customer(c_string: String, url: String) -> Result<(), Box<dyn stdError>> {
-//fn add_customer(c_string: String, url: String) -> Result<(), Error> {
 
-	//let s = c_string.replace("#", "");
-	//let customer = json::parse(&s).unwrap();
-	
-	//let pool = sqlx::postgres::PgPool::connect(&url).await?;
 	let pool = match sqlx::postgres::PgPool::connect(&url).await {
 		Ok(p) => p,
 		Err(e) => return Err(Box::new(e)),
@@ -130,10 +142,8 @@ async fn add_customer(c_string: String, url: String) -> Result<(), Box<dyn stdEr
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    //let configuration = get_configuration().expect("Failed to read config");
-    //let address = format!("{}:{}", configuration.database.host, configuration.database.port);
-    //let address = configuration.database.connection_string();
-    //println!("databse: {}", address);
+	
+	Ssr::create_platform();
 
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder
@@ -156,3 +166,6 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
+
+
+
