@@ -13,6 +13,7 @@ use std::cell::RefCell;
 use std::fs::read_to_string;
 use ssr_rs::Ssr;
 
+use std::path::Path;
 
 //config
 #[derive(serde::Deserialize)]
@@ -63,7 +64,7 @@ async fn status() -> String {
 thread_local! {
     static SSR: RefCell<Ssr<'static, 'static>> = RefCell::new(
             Ssr::from(
-                read_to_string(fs::NamedFile::open("/app/www/index.html")).unwrap(),
+                read_to_string(Path::new("/app/www/index.html").to_str()).unwrap(),
                 "SSR"
                 ).unwrap()
             )
