@@ -64,7 +64,7 @@ async fn status() -> String {
 thread_local! {
     static SSR: RefCell<Ssr<'static, 'static>> = RefCell::new(
             Ssr::from(
-                read_to_string("/app/www/index.html".to_str()).unwrap(),
+                read_to_string("./www/index.html".to_str()).unwrap(),
                 "SSR"
                 ).unwrap()
             )
@@ -159,7 +159,7 @@ async fn main() -> std::io::Result<()> {
 			.route("/", web::get().to(ssr_index))
 			.route("/submit", web::put().to(submit))
 			.route("/update", web::get().to(update))
-			//.service(fs::Files::new("/", "/app/www"))
+			.service(fs::Files::new("/", "/app/www"))
 			.default_service(web::get().to(ssr_index))
 	    
     })
