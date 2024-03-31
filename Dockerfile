@@ -6,7 +6,7 @@ COPY target/release/ssr-server /app/ssr-server
 
 COPY configuration.yaml /app/configuration.yaml
 
-COPY update-www.sh /app/update-www.sh
+//COPY update-www.sh /app/update-www.sh
 
 COPY www/ /app/www
 
