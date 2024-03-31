@@ -14,7 +14,7 @@ COPY key.pem /app/key.pem
 
 COPY cert.pem /app/cert.pem
 
-RUN chmod 755 server
+RUN chmod 755 ssr-server
 
 EXPOSE 8000
 
