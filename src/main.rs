@@ -155,11 +155,11 @@ async fn main() -> std::io::Result<()> {
 	HttpServer::new(|| {
 		App::new()
 			.route("/status", web::get().to(status))
-			.route("/", web::get().to(index))
+			.route("/", web::get().to(ssr_index))
 			.route("/submit", web::put().to(submit))
 			.route("/update", web::get().to(update))
 			.service(fs::Files::new("/", "/app/www"))
-			.default_service(web::get().to(index))
+			.default_service(web::get().to(ssr_index))
 	    
     })
     .bind_openssl("0.0.0.0:8000", builder)?
