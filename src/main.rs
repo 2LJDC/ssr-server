@@ -159,7 +159,7 @@ async fn main() -> std::io::Result<()> {
 			.route("/", web::get().to(ssr_index))
 			.route("/submit", web::put().to(submit))
 			.route("/update", web::get().to(update))
-			.service(fs::Files::new("/", "/app/www"))
+			.service(fs::Files::new("/", "./www"))
 			.default_service(web::get().to(ssr_index))
 	    
     })
