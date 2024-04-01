@@ -73,6 +73,8 @@ thread_local! {
 async fn ssr_index() -> HttpResponse {
     let result = SSR.with(|ssr| ssr.borrow_mut().render_to_string(None).unwrap());
 
+    println!("");
+	
     HttpResponse::build(StatusCode::OK)
         .content_type("text/html; charset=utf-8")
         .body(result)
