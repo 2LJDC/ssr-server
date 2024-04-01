@@ -60,7 +60,9 @@ async fn status() -> String {
     "Server is up and running.".to_string()
 }
 
+// -------------
 // ---- ssr ----
+// -------------
 thread_local! {
     static SSR: RefCell<Ssr<'static, 'static>> = RefCell::new(
             Ssr::from(
